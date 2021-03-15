@@ -46,11 +46,11 @@ int main()
 			//return 1;
 		}
 
-		auto ComFuncAddress = 0x00007FF776CC1070;
+		auto ComFuncAddress = 0x00007FF6159A1090;
 		auto offset = GetTlsOffset(pid, (LPCVOID)ComFuncAddress);
 		auto dwOffset = offset / sizeof(DWORD);
 
-		printf("Pid=%d, Thread=%d, TlsValue[%d]=%d\n", pid, threadId[i], dwOffset, tlsValue[4]);
+		printf("Pid=%d, Thread=%d, TlsValue[%d]=%d\n", pid, threadId[i], dwOffset, tlsValue[dwOffset]);
 
 		//for (int j = 0; j < sizeof(tlsValue) / sizeof(tlsValue[0]); j++)
 		//{
@@ -144,18 +144,19 @@ BOOL GetTlsValue(DWORD dwProcId, DWORD dwThreadId, DWORD* dwTlsValue, DWORD dwTl
 
 DWORD GetTlsOffset(DWORD dwProcId, LPCVOID address)
 {
-	HANDLE hProc = OpenProcess(PROCESS_VM_READ, NULL, dwProcId);
+	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, NULL, dwProcId);
 	if (hProc == NULL)
 	{
 		printf("OpenProcess failed\n");
 		return 0;
 	}
 
-	char buffer[200] = { 0 };
+	char buffer[100] = { 0 };
 	BOOL bAddress2 = ReadProcessMemory(hProc, address, buffer, sizeof(buffer), NULL);
 	if (!bAddress2)
 	{
-		printf("ReadProcessMemory teb failed\n");
+		
+		printf("ReadProcessMemory func address failed %d\n", GetLastError());
 		return 0;
 	}
 
